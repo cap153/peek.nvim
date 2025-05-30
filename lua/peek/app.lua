@@ -31,6 +31,7 @@ function module.setup()
     '--logfile=' .. string.format('%s%speek.log', vim.fn.stdpath('log'), sep),
     '--theme=' .. config.get('theme'),
     '--app=' .. vim.json.encode(config.get('app')),
+    '--port=' .. tostring(config.get('port')),
   }
 
   if config.get('syntax') then

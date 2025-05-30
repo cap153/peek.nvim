@@ -1,15 +1,19 @@
 local module = {}
 
+local DEFAULT_THEME = 'dark'
+local DEFAULT_PORT = 8888
+
 local config = {
   auto_load = true,
   close_on_bdelete = true,
   syntax = true,
-  theme = 'dark',
+  theme = DEFAULT_THEME,
   update_on_change = true,
   throttle_at = 200000,
   throttle_time = 'auto',
   app = 'webview',
   filetype = { 'markdown' },
+  port = DEFAULT_PORT,
 }
 
 local function optional(predicate)
@@ -62,15 +66,22 @@ function module.setup(incoming)
     close_on_bdelete = { incoming.close_on_bdelete, 'boolean', true },
     auto_load = { incoming.auto_load, 'boolean', true },
     syntax = { incoming.syntax, 'boolean', true },
-    theme = { incoming.theme, optional(one_of({ 'dark', 'light' })), '"dark" or "light"' },
+    -- Ensure theme is one of the valid options if provided, key is optional
+    theme = { incoming.theme, one_of({ DEFAULT_THEME, 'light' }), true },
     update_on_change = { incoming.update_on_change, 'boolean', true },
     throttle_at = { incoming.throttle_at, 'number', true },
     throttle_time = { incoming.throttle_time, optional(one_of({ 'auto', of_type('number') })), '"auto" or number' },
     app = { incoming.app, optional(one_of({ of_type('string'), every(of_type('string')) })), 'string or string[]' },
     filetype = { incoming.filetype, optional(every(of_type('string'))), 'string[]' },
+    -- Ensure port is a number if provided, key is optional
+    port = { incoming.port, 'number', true },
   })
 
   config = vim.tbl_extend('force', config, incoming)
+
+  -- Ensure critical string/number options have defaults if user provided `nil`
+  config.theme = config.theme or DEFAULT_THEME
+  config.port = config.port or DEFAULT_PORT
 end
 
 function module.get(key)

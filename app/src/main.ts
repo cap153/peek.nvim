@@ -16,6 +16,18 @@ const version = Deno.version;
 logger.info(`DENO_ENV: ${DENO_ENV}`, ...Deno.args);
 logger.info(`deno: ${version.deno} v8: ${version.v8} typescript: ${version.typescript}`);
 
+let argPort = 8888; // Default port
+if (__args['port'] !== undefined) {
+  const parsedPort = parseInt(String(__args['port']), 10);
+  if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort <= 65535) {
+    argPort = parsedPort;
+  } else {
+    logger.warn(
+      `Invalid port value "${__args['port']}" provided via CLI. Falling back to default port ${argPort}.`
+    );
+  }
+}
+
 async function init(socket: WebSocket) {
   if (DENO_ENV === 'development') {
     return void (await import(join(__dirname, 'ipc_dev.ts'))).default(socket);
@@ -99,7 +111,7 @@ async function init(socket: WebSocket) {
       });
     };
 
-    Deno.serve({ port: 8888, onListen }, (request) => {
+    Deno.serve({ port: argPort, onListen }, (request) => {
       const { socket, response } = Deno.upgradeWebSocket(request);
 
       socket.onopen = () => {
@@ -138,7 +150,7 @@ async function init(socket: WebSocket) {
 
   let timeout: number;
 
-  Deno.serve({ port: 8888, onListen }, async (request) => {
+  Deno.serve({ port: argPort, onListen }, async (request) => {
     const upgrade = request.headers.get('upgrade') || '';
 
     if (upgrade.toLowerCase() != 'websocket') {
