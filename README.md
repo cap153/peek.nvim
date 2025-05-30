@@ -38,6 +38,8 @@
 ```lua
 -- default config:
 require('peek').setup({
+  port = 8888,              -- if there is a port conflict, you can change this
+
   auto_load = true,         -- whether to automatically load preview when
                             -- entering another markdown buffer
   close_on_bdelete = true,  -- close preview window on buffer delete
@@ -71,15 +73,19 @@ specify browser along with arguments:
 
 `app = { 'chromium', '--new-window' }`
 
+`app = { "firefox-esr", "-private-window" },`
+
+`app = { "google-chrome-stable", "--app=http://localhost:8888/?theme=dark", "--incognito" },`
+
 [Chromium based browser](https://en.wikipedia.org/wiki/Chromium_(web_browser)#Browsers_based_on_Chromium) is recommended.
 
 ### :bulb: Usage
 
-| method ||
-|-|-|
-| open    | Open preview window                                 |
-| close   | Close preview window                                |
-| is_open | Returns `true` if preview window is currently open  |
+| method  |                                                    |
+|---------|----------------------------------------------------|
+| open    | Open preview window                                |
+| close   | Close preview window                               |
+| is_open | Returns `true` if preview window is currently open |
 
 Example command setup:
 
@@ -90,14 +96,14 @@ vim.api.nvim_create_user_command('PeekClose', require('peek').close, {})
 
 The following keybinds are active when preview window is focused:
 
-| key ||
-|-|-|
-| k | scroll up               |
-| j | scroll down             |
-| u | scroll up half a page   |
-| d | scroll down half a page |
-| g | scroll to top           |
-| G | scroll to bottom        |
+| key |                         |
+|-----|-------------------------|
+| k   | scroll up               |
+| j   | scroll down             |
+| u   | scroll up half a page   |
+| d   | scroll down half a page |
+| g   | scroll to top           |
+| G   | scroll to bottom        |
 
 ### :mag: Preview window
 
