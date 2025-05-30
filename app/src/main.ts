@@ -99,7 +99,7 @@ async function init(socket: WebSocket) {
       });
     };
 
-    Deno.serve({ port: 0, onListen }, (request) => {
+    Deno.serve({ port: 8888, onListen }, (request) => {
       const { socket, response } = Deno.upgradeWebSocket(request);
 
       socket.onopen = () => {
@@ -138,7 +138,7 @@ async function init(socket: WebSocket) {
 
   let timeout: number;
 
-  Deno.serve({ port: 0, onListen }, async (request) => {
+  Deno.serve({ port: 8888, onListen }, async (request) => {
     const upgrade = request.headers.get('upgrade') || '';
 
     if (upgrade.toLowerCase() != 'websocket') {
