@@ -15,6 +15,7 @@
 ### :battery: Requirements
 
 - [Deno](https://deno.land)
+- [webkit2gtk(option)](https://webkitgtk.org/)
 
 ### :electric_plug: Installation
 
@@ -66,6 +67,7 @@ require('peek').setup({
 ### :paperclip: `app` option
 
 Preview opens in a [webview](https://github.com/webview/webview_deno) window by default.
+If you set this option to `'webview'`, you need install [webkit2gtk](https://webkitgtk.org/)
 You can set this option to `'browser'` (will use your default browser as previewer) or
 specify browser along with arguments:
 
