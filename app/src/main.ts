@@ -23,7 +23,9 @@ if (__args['port'] !== undefined) {
     argPort = parsedPort;
   } else {
     logger.warn(
-      `Invalid port value "${__args['port']}" provided via CLI. Falling back to default port ${argPort}.`
+      `Invalid port value "${
+        __args['port']
+      }" provided via CLI. Falling back to default port ${argPort}.`,
     );
   }
 }
@@ -125,7 +127,7 @@ async function init(socket: WebSocket) {
   }
 
   async function findFile(url: string) {
-    const path = new URL(url).pathname.replace(/^\//, '') || 'index.html';
+    const path = decodeURIComponent(new URL(url).pathname).replace(/^\//, '') || 'index.html';
 
     for (const base of [Deno.mainModule, 'file:']) {
       try {
@@ -155,7 +157,39 @@ async function init(socket: WebSocket) {
 
     if (upgrade.toLowerCase() != 'websocket') {
       const file = await findFile(request.url);
-      return new Response(file?.readable || 'Not Found', { status: file ? 200 : 404 });
+      if (!file) {
+        return new Response('Not Found', { status: 404 });
+      }
+
+      const urlObj = new URL(request.url);
+      const pathName = decodeURIComponent(urlObj.pathname).replace(/^\//, '') || 'index.html';
+      const ext = pathName.split('.').pop()?.toLowerCase() || '';
+
+      const mimeTypes: Record<string, string> = {
+        'html': 'text/html',
+        'css': 'text/css',
+        'js': 'application/javascript',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'gif': 'image/gif',
+        'svg': 'image/svg+xml',
+        'webp': 'image/webp',
+        'avif': 'image/avif',
+        'json': 'application/json',
+        'ico': 'image/x-icon',
+      };
+
+      const contentType = mimeTypes[ext] ||
+        (ext === pathName ? 'text/html' : 'application/octet-stream');
+
+      return new Response(file.readable, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'no-cache',
+        },
+      });
     }
 
     clearTimeout(timeout);

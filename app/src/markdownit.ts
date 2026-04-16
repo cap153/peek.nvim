@@ -8,6 +8,7 @@ import { default as MarkdownItFootnote } from 'https://esm.sh/markdown-it-footno
 import { default as MarkdownItTaskLists } from 'https://esm.sh/markdown-it-task-lists@2.1.1';
 import { default as MarkdownItTexmath } from 'https://esm.sh/markdown-it-texmath@1.0.0';
 import Katex from 'https://esm.sh/katex@0.16.9';
+import { default as MarkdownItGitHubAlerts } from 'https://esm.sh/markdown-it-github-alerts@1.0.1';
 
 const __args = parseArgs(Deno.args);
 
@@ -38,7 +39,19 @@ const md = new MarkdownIt('default', {
       strict: false,
       throwOnError: false,
     },
-  });
+  })
+  .use(MarkdownItGitHubAlerts);
+
+const originalAlertOpen = md.renderer.rules.alert_open!;
+md.renderer.rules.alert_open = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const lineBegin = token.attrGet('data-line-begin');
+  const result = originalAlertOpen(tokens, idx, options, env, self);
+  if (lineBegin) {
+    return result.replace('<div', `<div data-line-begin="${lineBegin}"`);
+  }
+  return result;
+};
 
 md.renderer.rules.link_open = (tokens, idx, options) => {
   const token = tokens[idx];
